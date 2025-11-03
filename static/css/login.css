@@ -1,0 +1,60 @@
+/* ======== LOGIN ======== */
+body {
+    background: linear-gradient(135deg, #00733B, #004d29);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Ajustar el main para centrar el contenido --- */
+main {
+    flex: 1; /* ocupa el espacio entre header y footer */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Caja del login --- */
+.login-container {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 40px;
+    width: 350px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.login-container h2 {
+    color: #00733B;
+    margin-bottom: 25px;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.login-container button {
+    background-color: #00733B;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-container button:hover {
+    background-color: #005e31;
+}
+
+.error {
+    color: #e74c3c;
+    margin-top: 10px;
+}

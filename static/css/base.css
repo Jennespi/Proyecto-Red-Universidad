@@ -1,0 +1,51 @@
+/* ======== BASE GENERAL ======== */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #F3F3F3;
+    color: #222;
+}
+
+/* ======== ENCABEZADO ======== */
+header {
+    background-color: #00733B;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 15px 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+header img {
+    height: 60px;
+}
+
+header .info h1 {
+    margin: 0;
+    font-size: 1.6em;
+    font-weight: 600;
+}
+
+header .info p {
+    margin: 3px 0 0;
+    font-size: 0.9em;
+    color: #FFD200;
+}
+
+/* ======== CONTENIDO ======== */
+main {
+    min-height: calc(100vh - 160px);
+    padding: 20px;
+}
+
+/* ======== FOOTER ======== */
+footer {
+    background-color: #00733B;
+    color: white;
+    text-align: center;
+    padding: 15px 10px;
+    font-size: 0.9em;
+    border-top: 3px solid #FFD200;
+}

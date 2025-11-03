@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Análisis de Red Universitaria{% endblock %}</title>
+
+    <!-- Estilos base (comunes a todas las páginas) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+
+    <!-- Bloque para CSS específico de cada página -->
+    {% block extra_head %}{% endblock %}
+
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='img/logo_ucundinamarca.png') }}" alt="Logo UdeC">
+        <div class="info">
+            <h1>Universidad de Cundinamarca</h1>
+            <p>Sistema de Análisis de Red Universitaria</p>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Universidad de Cundinamarca - Comunicación de Datos</p>
+        <p>Jennifer Espitia y Leonardo Moscoso - 701N</p>
+    </footer>
+</body>
+</html>

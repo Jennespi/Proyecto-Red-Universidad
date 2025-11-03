@@ -1,0 +1,57 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #F3F3F3;
+    margin: 0;
+    color: #222;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-top: 20px;
+    color: #00733B;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.chart-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-top: 4px solid #00733B;
+}
+
+.chart-card h3 {
+    text-align: center;
+    color: #00733B;
+    margin-bottom: 15px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 250px !important;
+}
+
+.logout-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.logout {
+    display: inline-block;
+    color: white;
+    background-color: #00733B;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.logout:hover {
+    background-color: #005e31;
+}

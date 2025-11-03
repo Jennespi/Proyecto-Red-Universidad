@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de control{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Bienvenido al Panel de Control</h2>
+    <!-- Aquí va tu contenido -->
+</div>
+{% endblock %}
