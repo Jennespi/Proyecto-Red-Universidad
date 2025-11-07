@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Registrarse{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="registro-container">
+    <h2>Crear cuenta</h2>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="tipo_documento">Tipo de documento</label>
+            <select name="tipo_documento" id="tipo_documento" required>
+                <option value="">Seleccione...</option>
+                <option value="1">CC - Cédula de ciudadanía</option>
+                <option value="2">TI - Tarjeta de identidad</option>
+                <option value="3">CE - Cédula de extranjería</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="documento">Número de documento</label>
+            <input type="text" id="documento" name="documento" placeholder="Ej: 107xxxxxx" required>
+        </div>
+
+        <div class="form-group">
+            <label for="nombre">Nombre completo</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre completo" required>
+        </div>
+
+        <div class="form-group">
+            <label for="correo">Correo electrónico</label>
+            <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="telefono">Teléfono (opcional)</label>
+            <input type="text" id="telefono" name="telefono" placeholder="Ej: 3123456789">
+        </div>
+
+        <div class="form-group">
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" name="contrasena" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmar">Confirmar contraseña</label>
+            <input type="password" id="confirmar" name="confirmar" required>
+        </div>
+
+        <button type="submit">Registrarse</button>
+    </form>
+
+    <div class="registro-links">
+        <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
+    </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+</div>
+{% endblock %}

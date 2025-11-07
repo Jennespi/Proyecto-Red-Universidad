@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Chat{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="chat-container">
+
+    <!-- Panel principal del chat (sin panel de usuarios) -->
+    <div class="chat-box">
+
+        <div class="chat-header">
+            <h3>Chat XMPP</h3>
+            <a href="/dashboard" class="back-btn">← Volver al Dashboard</a>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <!-- Los mensajes aparecerán aquí -->
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="message" placeholder="Escribe un mensaje...">
+            <button onclick="sendMessage()" id="send-btn">Enviar</button>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+
+{% endblock %}

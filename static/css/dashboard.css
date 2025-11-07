@@ -1,57 +1,149 @@
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #F3F3F3;
-    margin: 0;
-    color: #222;
-}
-
-.dashboard-header {
-    text-align: center;
-    margin-top: 20px;
-    color: #00733B;
-}
-
-.content {
+/* ====== CONTENIDO DEL DASHBOARD ====== */
+.dashboard-content {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
     padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.chart-card {
+.dashboard-card {
     background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border-top: 4px solid #00733B;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #00733B;
 }
 
-.chart-card h3 {
-    text-align: center;
+.dashboard-card h3 {
     color: #00733B;
-    margin-bottom: 15px;
+    margin-top: 0;
 }
 
-canvas {
-    width: 100% !important;
-    height: 250px !important;
+.dashboard-card p {
+    color: #666;
+    line-height: 1.5;
 }
 
-.logout-container {
-    text-align: center;
-    margin: 20px 0;
+/* ====== BOTÓN FLOTANTE MEJORADO ====== */
+
+/* Botón flotante más pequeño y elegante */
+#chat-floating-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 50px;
+    height: 50px;
+    background: #00733B;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    border: 2px solid white;
 }
 
-.logout {
-    display: inline-block;
+#chat-floating-btn:hover {
+    transform: scale(1.1);
+    background: #005F31;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Estilo para la imagen del ícono */
+.chat-icon {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1); /* Hace que la imagen sea blanca */
+}
+
+/* Si usas SVG en lugar de imagen */
+#chat-floating-btn svg.chat-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* ====== MINI CHAT MEJORADO ====== */
+#chat-mini-window {
+    position: fixed;
+    bottom: 90px;
+    right: 25px;
+    width: 300px;
+    height: 400px;
+    background: white;
+    display: none;
+    flex-direction: column;
+    border-radius: 12px;
+    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 1001;
+    border: 1px solid #e0e0e0;
+}
+
+/* Mejoras visuales para el mini chat */
+.mini-body {
+    flex: 1;
+    background: #fafafa;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.mini-input input:focus {
+    border-color: #00733B;
+    outline: none;
+}
+/* Estilos para mensajes en mini chat */
+.mini-message {
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    max-width: 80%;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.mini-message.me {
+    background: #00733B;
     color: white;
-    background-color: #00733B;
-    padding: 10px 20px;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: background 0.3s;
+    align-self: flex-end;
+    margin-left: auto;
 }
 
-.logout:hover {
-    background-color: #005e31;
+.mini-message.other {
+    background: #e3e3e3;
+    color: #333;
+    align-self: flex-start;
+    margin-right: auto;
+}
+
+/* Mejoras visuales para el mini chat */
+.mini-body {
+    flex: 1;
+    background: #f8f9fa;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mini-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.mini-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.mini-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }

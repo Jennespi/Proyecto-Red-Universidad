@@ -10,14 +10,21 @@
 <div class="login-container">
     <div class="login-form">
         <h2>Iniciar Sesión</h2>
+
         <form method="POST">
             <input type="text" name="usuario" placeholder="Usuario" required>
             <input type="password" name="contrasena" placeholder="Contraseña" required>
             <button type="submit">Ingresar</button>
         </form>
+
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
+
+        <div class="login-links">
+            <a href="/registro">Registrarse</a>
+            <a href="/recuperar">¿Olvidaste tu contraseña?</a>
+        </div>
     </div>
 </div>
 {% endblock %}
