@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Estadísticas Detalladas - Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_modules.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-module-container">
+    <!-- Header -->
+    <div class="module-header">
+        <div class="module-title">
+            <h1>📈 Estadísticas Detalladas</h1>
+            <p>Métricas y análisis del sistema</p>
+        </div>
+        <div class="module-actions">
+            <a href="/admin" class="btn-back">← Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Estadísticas principales -->
+    <div class="stats-grid-detailed">
+        <div class="stat-card-large">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <h3>Total Usuarios</h3>
+                <div class="stat-number">{{ stats.total_usuarios or 0 }}</div>
+                <div class="stat-breakdown">
+                    {% if stats.usuarios_rol %}
+                        {% for rol in stats.usuarios_rol %}
+                        <span class="breakdown-item">{{ rol.rol|title }}: {{ rol.cantidad }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card-large">
+            <div class="stat-icon">💬</div>
+            <div class="stat-content">
+                <h3>Actividad de Mensajes</h3>
+                <div class="stat-number">{{ stats.total_mensajes or 0 }}</div>
+                <div class="stat-breakdown">
+                    <span class="breakdown-item">Total: {{ stats.total_mensajes or 0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card-large">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <h3>Actividad Hoy</h3>
+                <div class="stat-number">{{ stats.actividad_hoy or 0 }}</div>
+                <div class="stat-breakdown">
+                    <span class="breakdown-item">Registros: {{ stats.actividad_hoy or 0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card-large">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-content">
+                <h3>Conexiones Hoy</h3>
+                <div class="stat-number">{{ stats.conexiones_hoy or 0 }}</div>
+                <div class="stat-breakdown">
+                    <span class="breakdown-item">En tráfico: {{ stats.conexiones_hoy or 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficas -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Distribución de Usuarios por Rol</h3>
+            </div>
+            <canvas id="usersChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Actividad por Hora (Hoy)</h3>
+            </div>
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Tabla de logs recientes -->
+    <div class="module-content">
+        <div class="table-container">
+            <div class="table-header">
+                <h3>Resumen de Métricas</h3>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <span class="metric-label">Usuarios Registrados</span>
+                    <span class="metric-value">{{ stats.total_usuarios or 0 }}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Mensajes Totales</span>
+                    <span class="metric-value">{{ stats.total_mensajes or 0 }}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Actividad Hoy</span>
+                    <span class="metric-value">{{ stats.actividad_hoy or 0 }}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Conexiones Hoy</span>
+                    <span class="metric-value">{{ stats.conexiones_hoy or 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gráfica de distribución de usuarios
+const usersCtx = document.getElementById('usersChart').getContext('2d');
+new Chart(usersCtx, {
+    type: 'pie',
+    data: {
+        labels: [
+            {% if stats.usuarios_rol %}
+                {% for rol in stats.usuarios_rol %}
+                '{{ rol.rol|title }}'{{ "," if not loop.last }}
+                {% endfor %}
+            {% else %}
+                'Administradores', 'Estudiantes'
+            {% endif %}
+        ],
+        datasets: [{
+            data: [
+                {% if stats.usuarios_rol %}
+                    {% for rol in stats.usuarios_rol %}
+                    {{ rol.cantidad }}{{ "," if not loop.last }}
+                    {% endfor %}
+                {% else %}
+                    1, 1
+                {% endif %}
+            ],
+            backgroundColor: ['#00733B', '#28a745', '#20c997', '#17a2b8']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Gráfica de actividad por hora
+const activityCtx = document.getElementById('activityChart').getContext('2d');
+new Chart(activityCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% if stats.actividad_hora %}
+                {% for hora in stats.actividad_hora %}
+                '{{ hora.hora }}:00'{{ "," if not loop.last }}
+                {% endfor %}
+            {% else %}
+                '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00'
+            {% endif %}
+        ],
+        datasets: [{
+            label: 'Actividad',
+            data: [
+                {% if stats.actividad_hora %}
+                    {% for hora in stats.actividad_hora %}
+                    {{ hora.cantidad }}{{ "," if not loop.last }}
+                    {% endfor %}
+                {% else %}
+                    5, 8, 12, 15, 20, 18, 10
+                {% endif %}
+            ],
+            backgroundColor: '#00733B'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

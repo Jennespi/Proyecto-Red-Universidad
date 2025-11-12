@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Estado XMPP - Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_modules.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-module-container">
+    <!-- Header -->
+    <div class="module-header">
+        <div class="module-title">
+            <h1>💬 Estado del Servicio XMPP</h1>
+            <p>Monitoreo del servidor de mensajería</p>
+        </div>
+        <div class="module-actions">
+            <a href="/admin" class="btn-back">← Volver al Dashboard</a>
+            <button class="btn-refresh" onclick="actualizarEstado()">🔄 Actualizar</button>
+        </div>
+    </div>
+
+    <!-- Estado del servidor -->
+    <div class="status-grid">
+        <div class="status-card {% if estado.conectado %}status-online{% else %}status-offline{% endif %}">
+            <div class="status-icon">
+                {% if estado.conectado %}🟢{% else %}🔴{% endif %}
+            </div>
+            <div class="status-content">
+                <h3>Estado del Servidor</h3>
+                <div class="status-value">
+                    {% if estado.conectado %}En Línea{% else %}Desconectado{% endif %}
+                </div>
+                <div class="status-details">
+                    Servidor: {{ estado.servidor }}
+                </div>
+            </div>
+        </div>
+
+        <div class="status-card status-active">
+            <div class="status-icon">👥</div>
+            <div class="status-content">
+                <h3>Usuarios Conectados</h3>
+                <div class="status-value">{{ estado.usuarios_conectados }}</div>
+                <div class="status-details">Sesiones activas</div>
+            </div>
+        </div>
+
+        <div class="status-card status-info">
+            <div class="status-icon">💬</div>
+            <div class="status-content">
+                <h3>Mensajes Hoy</h3>
+                <div class="status-value">{{ estado.mensajes_hoy }}</div>
+                <div class="status-details">Total del día</div>
+            </div>
+        </div>
+
+        <div class="status-card status-neutral">
+            <div class="status-icon">⚙️</div>
+            <div class="status-content">
+                <h3>Versión</h3>
+                <div class="status-value">{{ estado.version }}</div>
+                <div class="status-details">Protocolo XMPP</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información detallada -->
+    <div class="module-content">
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>📋 Información del Servidor</h3>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">Servidor:</span>
+                        <span class="info-value">{{ estado.servidor }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Puerto:</span>
+                        <span class="info-value">5222</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Protocolo:</span>
+                        <span class="info-value">XMPP</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Versión:</span>
+                        <span class="info-value">{{ estado.version }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>📊 Estadísticas en Tiempo Real</h3>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">Usuarios Conectados:</span>
+                        <span class="info-value">{{ estado.usuarios_conectados }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mensajes Hoy:</span>
+                        <span class="info-value">{{ estado.mensajes_hoy }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Sesiones Activas:</span>
+                        <span class="info-value">{{ estado.usuarios_conectados }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tiempo Activo:</span>
+                        <span class="info-value">24/7</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="action-buttons-container">
+        <h3>Acciones del Servidor</h3>
+        <div class="action-buttons-grid">
+            <button class="btn-action btn-success" onclick="reiniciarServidor()">
+                🔄 Reiniciar Servidor
+            </button>
+            <button class="btn-action btn-warning" onclick="probarConexion()">
+                🧪 Probar Conexión
+            </button>
+            <button class="btn-action btn-info" onclick="verLogs()">
+                📋 Ver Logs
+            </button>
+            <button class="btn-action btn-secondary" onclick="configurarServidor()">
+                ⚙️ Configurar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function actualizarEstado() {
+    alert('Actualizando estado del servidor...');
+    location.reload();
+}
+
+function reiniciarServidor() {
+    if (confirm('¿Estás seguro de que quieres reiniciar el servidor XMPP?')) {
+        alert('Reiniciando servidor... - En desarrollo');
+    }
+}
+
+function probarConexion() {
+    alert('Probando conexión con el servidor... - En desarrollo');
+}
+
+function verLogs() {
+    alert('Mostrando logs del servidor... - En desarrollo');
+}
+
+function configurarServidor() {
+    alert('Abriendo configuración del servidor... - En desarrollo');
+}
+</script>
+{% endblock %}
