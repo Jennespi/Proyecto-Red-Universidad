@@ -1,0 +1,104 @@
+/* Contenedor principal - ahora ocupa todo el ancho */
+.chat-container {
+    height: calc(100vh - 160px);
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ========== PANEL PRINCIPAL DEL CHAT ========== */
+.chat-box {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f5f5f5;
+}
+
+/* Header */
+.chat-header {
+    background: #00733B;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.back-btn {
+    color: #FFD200;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+}
+
+/* Área de mensajes */
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: white;
+}
+
+/* Cada mensaje */
+.message {
+    margin-bottom: 12px;
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+/* Mensaje propio */
+.message.me {
+    background: #d1e7dd;
+    margin-left: auto;
+    border: 1px solid #badbcc;
+}
+
+/* Mensaje recibido */
+.message.other {
+    background: #e3e3e3;
+    margin-right: auto;
+    border: 1px solid #d6d6d6;
+}
+
+/* Input */
+.chat-input {
+    display: flex;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.chat-input input:focus {
+    border-color: #00733B;
+    outline: none;
+}
+
+.chat-input button {
+    background: #00733B;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.chat-input button:hover {
+    background: #005F31;
+}

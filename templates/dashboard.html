@@ -2,13 +2,69 @@
 
 {% block title %}Panel de control{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="dashboard">
+
+<!-- Encabezado del dashboard -->
+<div class="dashboard-header">
     <h2>Bienvenido al Panel de Control</h2>
-    <!-- Aquí va tu contenido -->
+    <a href="/logout" class="logout-btn">Cerrar sesión</a>
 </div>
+
+<!-- Contenido del dashboard -->
+<div class="dashboard-content">
+    <div class="dashboard-card">
+        <h3>Análisis de Red</h3>
+        <p>Visualización de métricas y estadísticas de la red universitaria.</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3>Reportes</h3>
+        <p>Genera reportes detallados del tráfico de red.</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3>Configuración</h3>
+        <p>Configura los parámetros del sistema de análisis.</p>
+    </div>
+</div>
+
+<!-- BOTÓN FLOTANTE DEL CHAT -->
+<div id="chat-floating-btn" onclick="toggleChatMini()">
+    <svg viewBox="0 0 24 24" class="chat-icon">
+        <path fill="white" d="M12 3C6.5 3 2 6.8 2 11c0 1.8.8 3.6 2.3 5L3 21l5.2-2.2c1 .3 2 .4 3 .4 5.5 0 10-3.8 10-8s-4.5-8-10-8z"/>
+    </svg>
+</div>
+
+<!-- MINI CHAT FLOTANTE -->
+<div id="chat-mini-window">
+    <!-- Header -->
+    <div class="mini-header">
+        <span>Chat rápido</span>
+        <button onclick="toggleChatMini()">✖</button>
+    </div>
+
+    <!-- Mensajes -->
+    <div class="mini-body" id="mini-messages">
+        <p class="placeholder">Escribe un mensaje para iniciar…</p>
+    </div>
+
+    <!-- Input -->
+    <div class="mini-input">
+        <input type="text" id="mini-text" placeholder="Mensaje..." onkeypress="handleMiniKeyPress(event)">
+        <button onclick="sendMiniMessage()">Enviar</button>
+    </div>
+
+    <!-- Botón para ir al chat completo -->
+    <div class="mini-footer">
+        <a href="/chat" class="expand-btn">Ampliar chat ↗</a>
+    </div>
+</div>
+
+<!-- Script del mini chat -->
+<script src="{{ url_for('static', filename='js/chat_mini.js') }}"></script>
+
 {% endblock %}

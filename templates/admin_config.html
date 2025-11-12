@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración - Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_modules.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-module-container">
+    <!-- Header -->
+    <div class="module-header">
+        <div class="module-title">
+            <h1>⚙️ Configuración del Sistema</h1>
+            <p>Configura los parámetros del sistema</p>
+        </div>
+        <div class="module-actions">
+            <a href="/admin" class="btn-back">← Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Configuración en tabs -->
+    <div class="config-tabs">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="openTab('general')">General</button>
+            <button class="tab-button" onclick="openTab('seguridad')">Seguridad</button>
+            <button class="tab-button" onclick="openTab('xmpp')">XMPP</button>
+            <button class="tab-button" onclick="openTab('base-datos')">Base de Datos</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Tab General -->
+            <div id="general" class="tab-pane active">
+                <form class="config-form">
+                    <div class="form-group">
+                        <label for="nombre_sistema">Nombre del Sistema</label>
+                        <input type="text" id="nombre_sistema" value="Sistema de Análisis de Red Universitaria" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="url_sistema">URL del Sistema</label>
+                        <input type="url" id="url_sistema" value="http://localhost:5000" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timezone">Zona Horaria</label>
+                        <select id="timezone" class="form-control">
+                            <option value="America/Bogota" selected>Bogotá (UTC-5)</option>
+                            <option value="UTC">UTC</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="idioma">Idioma</label>
+                        <select id="idioma" class="form-control">
+                            <option value="es" selected>Español</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" onclick="guardarConfiguracion('general')">
+                            💾 Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab Seguridad -->
+            <div id="seguridad" class="tab-pane">
+                <form class="config-form">
+                    <div class="form-group">
+                        <label for="longitud_password">Longitud Mínima de Contraseña</label>
+                        <input type="number" id="longitud_password" value="6" min="4" max="20" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="intentos_login">Intentos de Login Permitidos</label>
+                        <input type="number" id="intentos_login" value="3" min="1" max="10" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="session_timeout">Tiempo de Sesión (minutos)</label>
+                        <input type="number" id="session_timeout" value="30" min="5" max="480" class="form-control">
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="ssl_required" checked>
+                        <label for="ssl_required">Requerir conexión SSL/TLS</label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" onclick="guardarConfiguracion('seguridad')">
+                            💾 Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab XMPP -->
+            <div id="xmpp" class="tab-pane">
+                <form class="config-form">
+                    <div class="form-group">
+                        <label for="xmpp_server">Servidor XMPP</label>
+                        <input type="text" id="xmpp_server" value="xmpp.ucundinamarca.edu.co" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xmpp_port">Puerto</label>
+                        <input type="number" id="xmpp_port" value="5222" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xmpp_domain">Dominio</label>
+                        <input type="text" id="xmpp_domain" value="ucundinamarca.edu.co" class="form-control">
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="xmpp_tls" checked>
+                        <label for="xmpp_tls">Usar TLS</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado de Conexión</label>
+                        <div class="status-indicator connected">
+                            🟢 Conectado al servidor XMPP
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" onclick="guardarConfiguracion('xmpp')">
+                            💾 Guardar Configuración
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="probarConexionXMPP()">
+                            🧪 Probar Conexión
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab Base de Datos -->
+            <div id="base-datos" class="tab-pane">
+                <form class="config-form">
+                    <div class="form-group">
+                        <label for="db_host">Host de Base de Datos</label>
+                        <input type="text" id="db_host" value="localhost" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="db_name">Nombre de Base de Datos</label>
+                        <input type="text" id="db_name" value="comunicaciondatos" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="db_user">Usuario</label>
+                        <input type="text" id="db_user" value="root" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="db_status">Estado de Conexión</label>
+                        <div class="status-indicator connected">
+                            🟢 Conectado a la base de datos
+                        </div>
+                    </div>
+
+                    <div class="database-actions">
+                        <h4>Acciones de Base de Datos</h4>
+                        <div class="action-buttons-grid">
+                            <button type="button" class="btn-action btn-info" onclick="respaldarBD()">
+                                💾 Respaldar BD
+                            </button>
+                            <button type="button" class="btn-action btn-warning" onclick="optimizarBD()">
+                                🚀 Optimizar BD
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" onclick="guardarConfiguracion('base-datos')">
+                            💾 Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openTab(tabName) {
+    // Ocultar todos los tabs
+    document.querySelectorAll('.tab-pane').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+
+    // Mostrar el tab seleccionado
+    document.getElementById(tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+function guardarConfiguracion(seccion) {
+    alert('Guardando configuración de ' + seccion + '... - En desarrollo');
+}
+
+function probarConexionXMPP() {
+    alert('Probando conexión XMPP... - En desarrollo');
+}
+
+function respaldarBD() {
+    alert('Iniciando respaldo de base de datos... - En desarrollo');
+}
+
+function optimizarBD() {
+    alert('Optimizando base de datos... - En desarrollo');
+}
+</script>
+{% endblock %}

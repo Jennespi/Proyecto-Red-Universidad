@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Administrativo{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* ====== ESTILOS MEJORADOS INTEGRADOS ====== */
+    :root {
+        --primary: #00733B;
+        --primary-dark: #005a2b;
+        --primary-light: #e8f5ee;
+        --secondary: #6c757d;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --danger: #dc3545;
+        --danger-dark: #c82333;
+        --white: #ffffff;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+        --radius: 12px;
+    }
+
+    .admin-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+        min-height: 100vh;
+    }
+
+    /* Header mejorado */
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 25px 30px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 115, 59, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0, 115, 59, 0.1);
+    }
+
+    .admin-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), #00a85a);
+    }
+
+    .admin-title h1 {
+        color: var(--primary);
+        margin: 0;
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .admin-title p {
+        color: var(--secondary);
+        margin: 8px 0 0 0;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-logout {
+        background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+        color: white;
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-logout:hover {
+        background: linear-gradient(135deg, var(--danger-dark), #a71e2a);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Estadísticas mejoradas */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 35px;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        transition: all 0.4s ease;
+        border: 1px solid rgba(0, 115, 59, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--primary), #00a85a);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary-light), #ffffff);
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 115, 59, 0.15);
+    }
+
+    .stat-info h3 {
+        margin: 0 0 8px 0;
+        color: #5a6268;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    .stat-number {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--primary);
+        line-height: 1;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .chart-container, .logs-container, .actions-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.05);
+        padding: 28px;
+        border: 1px solid rgba(0, 115, 59, 0.08);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 18px;
+        border-bottom: 2px solid rgba(0, 115, 59, 0.1);
+    }
+
+    .chart-header h3 {
+        margin: 0;
+        color: var(--primary);
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    .btn-refresh, .btn-view-all {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 115, 59, 0.3);
+    }
+
+    .btn-refresh:hover, .btn-view-all:hover {
+        background: linear-gradient(135deg, var(--primary-dark), #004d25);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 115, 59, 0.4);
+    }
+
+    /* Gráficas */
+    canvas {
+        width: 100% !important;
+        height: 300px !important;
+    }
+
+    /* Logs mejorados */
+    .logs-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .log-item {
+        padding: 18px;
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        margin-bottom: 12px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .log-item:hover {
+        background: linear-gradient(135deg, #ffffff, #e9ecef);
+        transform: translateX(5px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .log-user {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 1rem;
+    }
+
+    .log-time {
+        font-size: 0.85rem;
+        color: var(--secondary);
+        background: rgba(108, 117, 125, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    .log-action {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 5px;
+        font-size: 1rem;
+    }
+
+    .no-logs {
+        text-align: center;
+        color: var(--secondary);
+        padding: 40px 20px;
+        font-style: italic;
+    }
+
+    /* Acciones rápidas mejoradas */
+    .actions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 25px 15px;
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--dark);
+        transition: all 0.4s ease;
+        border: 2px solid transparent;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .action-btn:hover {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 115, 59, 0.2);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .action-icon {
+        font-size: 2.2rem;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover .action-icon {
+        transform: scale(1.2);
+    }
+
+    .action-btn span {
+        font-weight: 600;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    /* Scrollbar */
+    .logs-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .logs-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .logs-list::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+        border-radius: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            gap: 18px;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .admin-container {
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="admin-title">
+            <h1>Panel de Administración</h1>
+            <p>Bienvenido, {{ session.usuario }}</p>
+        </div>
+        <div class="admin-actions">
+            <a href="/logout" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <!-- Estadísticas en tiempo real -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+                <h3>Total Usuarios</h3>
+                <div class="stat-number">{{ stats.total_usuarios or 0 }}</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-info">
+                <h3>Mensajes Totales</h3>
+                <div class="stat-number">{{ stats.total_mensajes or 0 }}</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+                <h3>Actividad Hoy</h3>
+                <div class="stat-number">{{ stats.actividad_hoy or 0 }}</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-info">
+                <h3>Registros Activos</h3>
+                <div class="stat-number">{{ (stats.total_usuarios or 0) + (stats.actividad_hoy or 0) }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficas y Paneles -->
+    <div class="dashboard-grid">
+        <!-- Gráfica de actividad -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Actividad de Usuarios</h3>
+                <button onclick="loadActivityChart()" class="btn-refresh">Actualizar</button>
+            </div>
+            <canvas id="activityChart"></canvas>
+        </div>
+
+        <!-- Logs recientes -->
+        <div class="logs-container">
+            <div class="chart-header">
+                <h3>Actividad Reciente</h3>
+                <a href="/admin/logs" class="btn-view-all">Ver Todos</a>
+            </div>
+            <div class="logs-list">
+                {% if registros %}
+                    {% for registro in registros %}
+                    <div class="log-item">
+                        <div class="log-header">
+                            <span class="log-user">{{ registro.usuario_nombre or 'Usuario' }}</span>
+                            <span class="log-time">
+                                {% if registro.fecha_hora %}
+                                    {{ registro.fecha_hora.strftime('%H:%M') }}
+                                {% else %}
+                                    Ahora
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="log-action">{{ registro.accion }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-logs">No hay actividad reciente</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="actions-container">
+            <div class="chart-header">
+                <h3>Acciones Rápidas</h3>
+            </div>
+            <div class="actions-grid">
+                <a href="/admin/usuarios" class="action-btn">
+                    <div class="action-icon">👥</div>
+                    <span>Gestión de Usuarios</span>
+                </a>
+                <a href="/admin/estadisticas" class="action-btn">
+                    <div class="action-icon">📈</div>
+                    <span>Estadísticas Detalladas</span>
+                </a>
+                <a href="/admin/xmpp" class="action-btn">
+                    <div class="action-icon">💬</div>
+                    <span>Estado XMPP</span>
+                </a>
+                <a href="/admin/config" class="action-btn">
+                    <div class="action-icon">⚙️</div>
+                    <span>Configuración</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gráficas para el dashboard admin
+let activityChart = null;
+
+function loadActivityChart() {
+    // Datos de ejemplo para la gráfica
+    const exampleData = {
+        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+        data: [12, 19, 8, 15, 22, 18, 14]
+    };
+    
+    updateChart(exampleData);
+}
+
+function updateChart(data) {
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    
+    if (activityChart) {
+        activityChart.destroy();
+    }
+    
+    activityChart = new Chart(activityCtx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Actividad Diaria',
+                data: data.data,
+                borderColor: '#00733B',
+                backgroundColor: 'rgba(0, 115, 59, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Actividad de Usuarios (Últimos 7 días)'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Cargar gráficas al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    loadActivityChart();
+});
+</script>
+{% endblock %}

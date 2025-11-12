@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Recuperar contraseña{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recuperar_contrasena.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="recover-container">
+    <div class="recover-form">
+        <h2>Recuperar contraseña</h2>
+
+        <form method="POST">
+
+            <label for="correo">Correo electrónico</label>
+            <input type="email" id="correo" name="correo" placeholder="Ingresa tu correo registrado" required>
+
+            <button type="submit">Enviar enlace de recuperación</button>
+        </form>
+
+        <div class="recover-links">
+            <a href="/login">Volver al inicio de sesión</a>
+        </div>
+
+        {% if mensaje %}
+            <p class="mensaje">{{ mensaje }}</p>
+        {% endif %}
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

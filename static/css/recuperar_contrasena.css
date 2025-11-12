@@ -1,0 +1,146 @@
+/* Contenedor general centrado */
+.recover-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 160px); 
+    padding: 20px;
+    background: #f8f9fa;
+}
+
+/* Tarjeta */
+.recover-form {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 12px;
+    padding: 40px 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+}
+
+/* Título */
+.recover-form h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #00733B;
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Subtítulo */
+.recover-form p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+/* Formulario */
+.recover-form form {
+    display: grid;
+    gap: 20px;
+}
+
+/* Labels */
+.recover-form label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Input */
+.recover-form input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    background: #fafafa;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.recover-form input:focus {
+    border-color: #00733B;
+    background: white;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 115, 59, 0.1);
+}
+
+/* Botón */
+.recover-form button {
+    width: 100%;
+    padding: 14px;
+    background: #00733B;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+}
+
+.recover-form button:hover {
+    background: #005F31;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 115, 59, 0.2);
+}
+
+/* Links */
+.recover-links {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.recover-links a {
+    color: #00733B;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.recover-links a:hover {
+    text-decoration: underline;
+    color: #005F31;
+}
+
+/* Mensajes */
+.error, .mensaje {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.error {
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+.mensaje {
+    background: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .recover-form {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+    
+    .recover-form h2 {
+        font-size: 1.5rem;
+    }
+}
