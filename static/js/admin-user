@@ -1,0 +1,435 @@
+// admin-users.js - Gestión completa de usuarios
+class AdminUsers {
+    constructor() {
+        this.currentPage = 1;
+        this.searchTerm = '';
+        this.selectedUserId = null;
+        this.tiposDocumento = window.tiposDocumento || [];
+        this.init();
+    }
+
+    init() {
+        this.loadUsers();
+        this.setupEventListeners();
+        this.setupSearch();
+    }
+
+    setupEventListeners() {
+        // Buscar en tiempo real
+        const searchInput = document.getElementById('searchUsers');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.searchTerm = e.target.value;
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.loadUsers(1);
+                }, 500);
+            });
+        }
+
+        // Validación de contraseña en tiempo real
+        const newPassword = document.getElementById('newPassword');
+        if (newPassword) {
+            newPassword.addEventListener('input', (e) => {
+                this.checkPasswordStrength(e.target.value);
+            });
+        }
+
+        const confirmPassword = document.getElementById('confirmPassword');
+        if (confirmPassword) {
+            confirmPassword.addEventListener('input', (e) => {
+                this.checkPasswordMatch();
+            });
+        }
+    }
+
+    async loadUsers(page = 1) {
+        this.currentPage = page;
+        
+        try {
+            this.showLoading();
+            
+            const response = await fetch(`/admin/api/usuarios?pagina=${page}&busqueda=${this.searchTerm}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.renderUsers(data.usuarios);
+                this.renderPagination(data.paginacion);
+                this.updateStats(data.usuarios);
+            } else {
+                this.showError(data.error || 'Error al cargar usuarios');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            this.showError('Error de conexión al servidor');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    renderUsers(users) {
+        const tbody = document.getElementById('usersTableBody');
+        if (!tbody) return;
+
+        if (!users || users.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="no-data">
+                        <div style="text-align: center; padding: 40px; color: #6c757d;">
+                            ${this.searchTerm ? 'No se encontraron usuarios que coincidan con la búsqueda' : 'No hay usuarios registrados'}
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = users.map(user => `
+            <tr data-user-id="${user.id}">
+                <td>${user.id}</td>
+                <td>
+                    <div class="user-info">
+                        <span class="user-name">${this.escapeHtml(user.nombre)}</span>
+                        <span class="user-email">${this.escapeHtml(user.correo)}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <span>${this.escapeHtml(user.correo)}</span>
+                        ${user.telefono ? `<span class="user-phone">${this.escapeHtml(user.telefono)}</span>` : ''}
+                    </div>
+                </td>
+                <td>
+                    ${user.documento ? `
+                        <span>${this.escapeHtml(user.tipo_documento)}: ${this.escapeHtml(user.documento)}</span>
+                    ` : 'No registrado'}
+                </td>
+                <td>
+                    <span class="role-badge role-${user.rol}">${user.rol}</span>
+                </td>
+                <td>
+                    ${user.fecha_creacion ? new Date(user.fecha_creacion).toLocaleDateString('es-ES') : 'N/A'}
+                </td>
+                <td>
+                    <span class="status-badge status-active">Activo</span>
+                </td>
+                <td>
+                    <div class="user-actions">
+                        <button class="btn btn-sm btn-warning" onclick="adminUsers.editUser(${user.id})">
+                            ✏️ Editar
+                        </button>
+                        ${user.rol !== 'administrador' ? `
+                            <button class="btn btn-sm btn-danger" onclick="adminUsers.confirmDelete(${user.id}, '${this.escapeHtml(user.nombre)}')">
+                                🗑️ Eliminar
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    renderPagination(pagination) {
+        const container = document.getElementById('pagination');
+        if (!container) return;
+
+        const { pagina_actual, total_paginas } = pagination;
+        
+        let html = '';
+        
+        if (pagina_actual > 1) {
+            html += `<button onclick="adminUsers.loadUsers(${pagina_actual - 1})">← Anterior</button>`;
+        }
+        
+        html += `<span class="pagination-info">Página ${pagina_actual} de ${total_paginas}</span>`;
+        
+        if (pagina_actual < total_paginas) {
+            html += `<button onclick="adminUsers.loadUsers(${pagina_actual + 1})">Siguiente →</button>`;
+        }
+        
+        container.innerHTML = html;
+    }
+
+    updateStats(users) {
+        const totalUsers = users.length;
+        const adminUsers = users.filter(u => u.rol === 'administrador').length;
+        
+        document.getElementById('totalUsers').textContent = totalUsers;
+        document.getElementById('adminUsers').textContent = adminUsers;
+        document.getElementById('activeUsers').textContent = totalUsers; // En tu BD actual todos están activos
+    }
+
+    async editUser(userId) {
+        try {
+            const response = await fetch(`/admin/api/usuarios/${userId}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.selectedUserId = userId;
+                this.populateEditForm(data.usuario);
+                this.openEditModal();
+            } else {
+                this.showError(data.error || 'Error al cargar datos del usuario');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            this.showError('Error de conexión al servidor');
+        }
+    }
+
+    populateEditForm(usuario) {
+        document.getElementById('editUserId').value = usuario.id;
+        document.getElementById('editNombre').value = usuario.nombre || '';
+        document.getElementById('editCorreo').value = usuario.correo || '';
+        document.getElementById('editTelefono').value = usuario.telefono || '';
+        document.getElementById('editDocumento').value = usuario.documento || '';
+        document.getElementById('editRol').value = usuario.rol || 'estudiante';
+        document.getElementById('editTipoDocumento').value = usuario.tipo_documento_id || '';
+    }
+
+    async updateUser() {
+        const form = document.getElementById('editUserForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        
+        try {
+            const response = await fetch(`/admin/api/usuarios/${this.selectedUserId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                this.showSuccess(result.message || 'Usuario actualizado correctamente');
+                this.closeEditModal();
+                this.loadUsers(this.currentPage);
+            } else {
+                this.showError(result.error || 'Error al actualizar usuario');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            this.showError('Error de conexión al servidor');
+        }
+    }
+
+    confirmDelete(userId, userName) {
+        this.selectedUserId = userId;
+        this.showConfirmModal(
+            'Eliminar Usuario',
+            `¿Estás seguro de que quieres eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`,
+            () => this.deleteUser()
+        );
+    }
+
+    async deleteUser() {
+        try {
+            const response = await fetch(`/admin/api/usuarios/${this.selectedUserId}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                this.showSuccess(result.message || 'Usuario eliminado correctamente');
+                this.closeConfirmModal();
+                this.loadUsers(this.currentPage);
+            } else {
+                this.showError(result.error || 'Error al eliminar usuario');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            this.showError('Error de conexión al servidor');
+        }
+    }
+
+    showResetPasswordModal() {
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        document.getElementById('passwordStrength').textContent = '';
+        document.getElementById('passwordMatch').textContent = '';
+        
+        this.closeEditModal();
+        document.getElementById('resetPasswordModal').classList.add('active');
+    }
+
+    checkPasswordStrength(password) {
+        const strengthElem = document.getElementById('passwordStrength');
+        if (!strengthElem) return;
+        
+        let strength = '';
+        let strengthClass = '';
+        
+        if (password.length === 0) {
+            strength = '';
+        } else if (password.length < 6) {
+            strength = 'Muy débil';
+            strengthClass = 'strength-weak';
+        } else if (password.length < 8) {
+            strength = 'Débil';
+            strengthClass = 'strength-weak';
+        } else if (password.length < 10) {
+            strength = 'Media';
+            strengthClass = 'strength-medium';
+        } else {
+            strength = 'Fuerte';
+            strengthClass = 'strength-strong';
+        }
+        
+        strengthElem.textContent = strength;
+        strengthElem.className = `password-strength ${strengthClass}`;
+    }
+
+    checkPasswordMatch() {
+        const matchElem = document.getElementById('passwordMatch');
+        const password = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        
+        if (!matchElem) return;
+        
+        if (confirm.length === 0) {
+            matchElem.textContent = '';
+        } else if (password === confirm) {
+            matchElem.textContent = 'Las contraseñas coinciden';
+            matchElem.className = 'password-match match-valid';
+        } else {
+            matchElem.textContent = 'Las contraseñas no coinciden';
+            matchElem.className = 'password-match match-invalid';
+        }
+    }
+
+    async resetPassword() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword.length < 6) {
+            this.showError('La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            this.showError('Las contraseñas no coinciden');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/admin/api/usuarios/${this.selectedUserId}/contrasena`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nueva_contrasena: newPassword
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                this.showSuccess(result.message || 'Contraseña actualizada correctamente');
+                this.closeResetPasswordModal();
+            } else {
+                this.showError(result.error || 'Error al actualizar contraseña');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            this.showError('Error de conexión al servidor');
+        }
+    }
+
+    // Modal management
+    openEditModal() {
+        document.getElementById('editUserModal').classList.add('active');
+    }
+
+    closeEditModal() {
+        document.getElementById('editUserModal').classList.remove('active');
+    }
+
+    closeResetPasswordModal() {
+        document.getElementById('resetPasswordModal').classList.remove('active');
+    }
+
+    showConfirmModal(title, message, callback) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        
+        const confirmBtn = document.getElementById('confirmActionBtn');
+        confirmBtn.onclick = callback;
+        
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+    }
+
+    // Utility methods
+    showLoading() {
+        // Implementar loading spinner
+        const tbody = document.getElementById('usersTableBody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px;">
+                        <div class="loading-spinner"></div>
+                        <p>Cargando usuarios...</p>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    hideLoading() {
+        // Ocultar loading spinner
+    }
+
+    showSuccess(message) {
+        if (window.mainApp) {
+            window.mainApp.showNotification(message, 'success');
+        } else {
+            alert(message);
+        }
+    }
+
+    showError(message) {
+        if (window.mainApp) {
+            window.mainApp.showNotification(message, 'error');
+        } else {
+            alert('Error: ' + message);
+        }
+    }
+
+    escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return unsafe
+            .toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    setupSearch() {
+        // Búsqueda ya configurada en event listeners
+    }
+
+    exportUsers() {
+        this.showSuccess('Función de exportación en desarrollo');
+    }
+
+    showCreateModal() {
+        this.showSuccess('Función de crear usuario en desarrollo');
+    }
+}
+
+// Inicializar gestión de usuarios
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('usersTable')) {
+        window.adminUsers = new AdminUsers();
+    }
+});

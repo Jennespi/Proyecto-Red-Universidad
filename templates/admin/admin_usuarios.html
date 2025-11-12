@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios - Admin{% endblock %}
+
+{% block admin_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-users.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <div class="admin-title">
+            <h1>Gestión de Usuarios</h1>
+            <p>Administra los usuarios del sistema</p>
+        </div>
+        <div class="admin-actions">
+            <a href="/admin" class="btn btn-secondary">← Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Barra de herramientas -->
+    <div class="users-toolbar">
+        <div class="search-box">
+            <input type="text" id="searchUsers" placeholder="Buscar usuarios..." class="search-input">
+            <button class="search-btn">🔍</button>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn btn-primary" onclick="adminUsers.showCreateModal()">
+                + Nuevo Usuario
+            </button>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="users-stats">
+        <div class="stat-item">
+            <span class="stat-number" id="totalUsers">0</span>
+            <span class="stat-label">Total Usuarios</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="activeUsers">0</span>
+            <span class="stat-label">Activos</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="adminUsers">0</span>
+            <span class="stat-label">Administradores</span>
+        </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Lista de Usuarios</h3>
+            <div class="table-actions">
+                <button class="btn btn-sm btn-outline" onclick="adminUsers.exportUsers()">
+                    📊 Exportar
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="users-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Contacto</th>
+                        <th>Documento</th>
+                        <th>Rol</th>
+                        <th>Registro</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Los usuarios se cargarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination" id="pagination">
+            <!-- La paginación se cargará dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar usuario -->
+<div id="editUserModal" class="modal">
+    <div class="modal-overlay" onclick="adminUsers.closeEditModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Editar Usuario</h3>
+            <button class="modal-close" onclick="adminUsers.closeEditModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="editUserForm" class="user-form">
+                <input type="hidden" id="editUserId" name="id">
+                
+                <div class="form-group">
+                    <label for="editNombre">Nombre Completo *</label>
+                    <input type="text" id="editNombre" name="nombre" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editCorreo">Correo Electrónico *</label>
+                    <input type="email" id="editCorreo" name="correo" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTipoDocumento">Tipo Documento</label>
+                        <select id="editTipoDocumento" name="tipo_documento_id">
+                            {% for tipo in tipos_documento %}
+                            <option value="{{ tipo.id }}">{{ tipo.descripcion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editDocumento">Número Documento</label>
+                        <input type="text" id="editDocumento" name="documento">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editTelefono">Teléfono</label>
+                    <input type="tel" id="editTelefono" name="telefono">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editRol">Rol *</label>
+                    <select id="editRol" name="rol" required>
+                        <option value="estudiante">Estudiante</option>
+                        <option value="administrador">Administrador</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="adminUsers.closeEditModal()">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" onclick="adminUsers.showResetPasswordModal()">
+                Resetear Contraseña
+            </button>
+            <button type="button" class="btn btn-primary" onclick="adminUsers.updateUser()">
+                Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para resetear contraseña -->
+<div id="resetPasswordModal" class="modal">
+    <div class="modal-overlay" onclick="adminUsers.closeResetPasswordModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Resetear Contraseña</h3>
+            <button class="modal-close" onclick="adminUsers.closeResetPasswordModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="newPassword">Nueva Contraseña *</label>
+                <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                <div class="password-strength" id="passwordStrength"></div>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Contraseña *</label>
+                <input type="password" id="confirmPassword" placeholder="Repite la contraseña" required>
+                <div class="password-match" id="passwordMatch"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="adminUsers.closeResetPasswordModal()">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" onclick="adminUsers.resetPassword()">
+                Actualizar Contraseña
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div id="confirmModal" class="modal">
+    <div class="modal-overlay" onclick="adminUsers.closeConfirmModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Confirmar Acción</h3>
+            <button class="modal-close" onclick="adminUsers.closeConfirmModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">¿Estás seguro de que quieres realizar esta acción?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="adminUsers.closeConfirmModal()">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmActionBtn">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin-users.js') }}"></script>
+<script>
+    const tiposDocumento = {{ tipos_documento | tojson }};
+</script>
+{% endblock %}
